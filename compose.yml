@@ -105,6 +105,28 @@ services:
     profiles: [activitypub]
     networks:
       - ghost_network
+    labels:
+      # Enable Traefik for this service
+      - "traefik.enable=true"
+      - "traefik.http.services.activitypub.loadbalancer.server.port=8080"
+
+      # Route: /.ghost/activitypub/*
+      - "traefik.http.routers.activitypub-main.rule=PathPrefix(`/.ghost/activitypub/`)"
+      - "traefik.http.routers.activitypub-main.service=activitypub"
+      - "traefik.http.routers.activitypub-main.priority=100"
+      - "traefik.http.routers.activitypub-main.entrypoints=https"
+
+      # Route: /.well-known/webfinger
+      - "traefik.http.routers.activitypub-webfinger.rule=Path(`/.well-known/webfinger`)"
+      - "traefik.http.routers.activitypub-webfinger.service=activitypub"
+      - "traefik.http.routers.activitypub-webfinger.priority=100"
+      - "traefik.http.routers.activitypub-webfinger.entrypoints=https"
+
+      # Route: /.well-known/nodeinfo
+      - "traefik.http.routers.activitypub-nodeinfo.rule=Path(`/.well-known/nodeinfo`)"
+      - "traefik.http.routers.activitypub-nodeinfo.service=activitypub"
+      - "traefik.http.routers.activitypub-nodeinfo.priority=100"
+      - "traefik.http.routers.activitypub-nodeinfo.entrypoints=https"
 
   # Suporting Services
 
