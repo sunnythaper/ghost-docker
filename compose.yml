@@ -24,7 +24,7 @@ services:
       tinybird__tracker__datasource: analytics_events
       tinybird__stats__endpoint: ${TINYBIRD_API_URL:-https://api.tinybird.co}
     volumes:
-      - ${UPLOAD_LOCATION:-./data/ghost}:/var/lib/ghost/content
+      - ghost-content:/var/lib/ghost/content
     depends_on:
       db:
         condition: service_healthy
@@ -87,7 +87,7 @@ services:
     expose:
       - "8080"
     volumes:
-      - ${UPLOAD_LOCATION:-./data/ghost}:/opt/activitypub/content
+      - ghost-content:/opt/activitypub/content
     environment:
       # See https://github.com/TryGhost/ActivityPub/blob/main/docs/env-vars.md
       NODE_ENV: production
