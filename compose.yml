@@ -9,7 +9,7 @@ services:
       - "443:443"
     environment:
       DOMAIN: ${DOMAIN:?DOMAIN environment variable is required}
-      ADMIN_DOMAIN: ${ADMIN_DOMAIN:-example.${DOMAIN}}
+      ADMIN_DOMAIN: ${ADMIN_DOMAIN:-}
       ACTIVITYPUB_TARGET: ${ACTIVITYPUB_TARGET:-https://ap.ghost.org}
     volumes:
       - ./caddy:/etc/caddy
@@ -32,7 +32,7 @@ services:
     environment:
       NODE_ENV: production
       url: https://${DOMAIN:?DOMAIN environment variable is required}
-      admin__url: ${ADMIN_DOMAIN:-https://example.${DOMAIN}}
+      admin__url: ${ADMIN_DOMAIN_FULL:-}
       database__client: mysql
       database__connection__host: db
       database__connection__user: ${DATABASE_USER:-ghost}
