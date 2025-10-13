@@ -105,34 +105,6 @@ services:
     profiles: [activitypub]
     networks:
       - ghost_network
-    labels:
-      # Enable Traefik for this service
-      - traefik.enable=true
-      - traefik.http.services.activitypub.loadbalancer.server.port=8080
-
-      # Route: /.ghost/activitypub/*
-      - 'traefik.http.routers.activitypub-main.rule=Host(`$SERVICE_FQDN_GHOST`) && PathPrefix(`/.ghost/activitypub/`)'
-      - traefik.http.routers.activitypub-main.service=activitypub
-      - traefik.http.routers.activitypub-main.priority=100
-      - traefik.http.routers.activitypub-main.entrypoints=https
-      - traefik.http.routers.activitypub-main.tls=true
-      - traefik.http.routers.activitypub-main.tls.certresolver=letsencrypt
-
-      # Route: /.well-known/webfinger
-      - 'traefik.http.routers.activitypub-webfinger.rule=Host(`$SERVICE_FQDN_GHOST`) && Path(`/.well-known/webfinger`)'
-      - traefik.http.routers.activitypub-webfinger.service=activitypub
-      - traefik.http.routers.activitypub-webfinger.priority=100
-      - traefik.http.routers.activitypub-webfinger.entrypoints=https
-      - traefik.http.routers.activitypub-webfinger.tls=true
-      - traefik.http.routers.activitypub-webfinger.tls.certresolver=letsencrypt
-
-      # Route: /.well-known/nodeinfo
-      - 'traefik.http.routers.activitypub-nodeinfo.rule=Host(`$SERVICE_FQDN_GHOST`) && Path(`/.well-known/nodeinfo`)'
-      - traefik.http.routers.activitypub-nodeinfo.service=activitypub
-      - traefik.http.routers.activitypub-nodeinfo.priority=100
-      - traefik.http.routers.activitypub-nodeinfo.entrypoints=https
-      - traefik.http.routers.activitypub-nodeinfo.tls=true
-      - traefik.http.routers.activitypub-nodeinfo.tls.certresolver=letsencrypt
 
   tinybird-login:
     build:
