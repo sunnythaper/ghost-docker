@@ -31,14 +31,14 @@ services:
       - .env
     environment:
       NODE_ENV: production
-      url: https://${DOMAIN:?DOMAIN environment variable is required}
-      admin__url: ${ADMIN_DOMAIN:+https://${ADMIN_DOMAIN}}
+      url: ${DOMAIN:?DOMAIN environment variable is required}
+      admin__url: ${ADMIN_DOMAIN:+${ADMIN_DOMAIN}}
       database__client: mysql
       database__connection__host: db
       database__connection__user: ${DATABASE_USER:-ghost}
       database__connection__password: ${DATABASE_PASSWORD:?DATABASE_PASSWORD environment variable is required}
       database__connection__database: ghost
-      tinybird__tracker__endpoint: https://${DOMAIN:?DOMAIN environment variable is required}/.ghost/analytics/api/v1/page_hit
+      tinybird__tracker__endpoint: ${DOMAIN:?DOMAIN environment variable is required}/.ghost/analytics/api/v1/page_hit
       tinybird__adminToken: ${TINYBIRD_ADMIN_TOKEN:-}
       tinybird__workspaceId: ${TINYBIRD_WORKSPACE_ID:-}
       tinybird__tracker__datasource: analytics_events
@@ -116,7 +116,7 @@ services:
       MYSQL_PASSWORD: ${DATABASE_PASSWORD:?DATABASE_PASSWORD environment variable is required}
       MYSQL_DATABASE: activitypub
       LOCAL_STORAGE_PATH: /opt/activitypub/content/images/activitypub
-      LOCAL_STORAGE_HOSTING_URL: https://${DOMAIN}/content/images/activitypub
+      LOCAL_STORAGE_HOSTING_URL: ${DOMAIN}/content/images/activitypub
     depends_on:
       db:
         condition: service_healthy
