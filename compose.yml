@@ -154,7 +154,7 @@ services:
     working_dir: /data/tinybird
     command: >
       sh -c "
-        tb-wrapper --cloud deploy
+        tb-wrapper --cloud deploy --allow-destructive-operations
       "
     volumes:
       - tinybird_home:/home/tinybird
