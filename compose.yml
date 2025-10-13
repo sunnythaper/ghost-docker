@@ -1,6 +1,25 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/compose-spec/compose-spec/main/schema/compose-spec.json
 services:
+  caddy:
+    image: caddy:2.10.0-alpine@sha256:e2e3a089760c453bc51c4e718342bd7032d6714f15b437db7121bfc2de2654a6
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:?DOMAIN environment variable is required}
+      ADMIN_DOMAIN: ${ADMIN_DOMAIN:-example.${DOMAIN}}
+      ACTIVITYPUB_TARGET: ${ACTIVITYPUB_TARGET:-https://ap.ghost.org}
+    volumes:
+      - ./caddy:/etc/caddy
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - ghost
+    networks:
+      - ghost_network
+
   ghost:
     # Do not alter this without updating the Tinybird Sync container as well
     image: ghost:${GHOST_VERSION:-6-alpine}
@@ -12,25 +31,18 @@ services:
       - .env
     environment:
       NODE_ENV: production
-      url: ${DOMAIN:?DOMAIN environment variable is required}
-      # admin__url: ${ADMIN_DOMAIN:+${ADMIN_DOMAIN}}
+      url: https://${DOMAIN:?DOMAIN environment variable is required}
+      admin__url: ${ADMIN_DOMAIN:-https://example.${DOMAIN}}
       database__client: mysql
       database__connection__host: db
       database__connection__user: ${DATABASE_USER:-ghost}
       database__connection__password: ${DATABASE_PASSWORD:?DATABASE_PASSWORD environment variable is required}
       database__connection__database: ghost
-      tinybird__tracker__endpoint: ${DOMAIN:?DOMAIN environment variable is required}/.ghost/analytics/api/v1/page_hit
+      tinybird__tracker__endpoint: https://${DOMAIN:?DOMAIN environment variable is required}/.ghost/analytics/api/v1/page_hit
       tinybird__adminToken: ${TINYBIRD_ADMIN_TOKEN:-}
       tinybird__workspaceId: ${TINYBIRD_WORKSPACE_ID:-}
       tinybird__tracker__datasource: analytics_events
       tinybird__stats__endpoint: ${TINYBIRD_API_URL:-https://api.tinybird.co}
-      mail__transport: SMTP
-      mail__options__auth__pass: ${MAIL_OPTIONS_AUTH_PASS}
-      mail__options__auth__user: ${MAIL_OPTIONS_AUTH_USER}
-      mail__options__secure: ${MAIL_OPTIONS_SECURE:-true}
-      mail__options__port: ${MAIL_OPTIONS_PORT:-465}
-      mail__options__service: ${MAIL_OPTIONS_SERVICE:-Mailgun}
-      mail__options__host: ${MAIL_OPTIONS_HOST}
     volumes:
       - ${UPLOAD_LOCATION:-./data/ghost}:/var/lib/ghost/content
     depends_on:
@@ -104,7 +116,7 @@ services:
       MYSQL_PASSWORD: ${DATABASE_PASSWORD:?DATABASE_PASSWORD environment variable is required}
       MYSQL_DATABASE: activitypub
       LOCAL_STORAGE_PATH: /opt/activitypub/content/images/activitypub
-      LOCAL_STORAGE_HOSTING_URL: ${DOMAIN}/content/images/activitypub
+      LOCAL_STORAGE_HOSTING_URL: https://${DOMAIN}/content/images/activitypub
     depends_on:
       db:
         condition: service_healthy
