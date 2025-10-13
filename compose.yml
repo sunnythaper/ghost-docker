@@ -13,7 +13,6 @@ services:
     environment:
       NODE_ENV: production
       url: $SERVICE_URL_GHOST
-      admin__url: https://${ADMIN_SUBDOMAIN:-ghostadmin.$SERVICE_FQDN_GHOST}
       database__client: mysql
       database__connection__host: db
       database__connection__user: ${DATABASE_USER:-ghost}
