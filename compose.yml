@@ -118,6 +118,8 @@ services:
     profiles:
       - analytics
       - tinybird-login-manual
+      - tinybird-sync-manual
+      - tinybird-deploy-manual
     networks:
       - ghost_network
     tty: false
@@ -146,6 +148,7 @@ services:
     profiles:
       - analytics
       - tinybird-sync-manual
+      - tinybird-deploy-manual
     restart: no
 
   tinybird-deploy:
