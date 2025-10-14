@@ -28,12 +28,12 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      tinybird-sync:
-        condition: service_completed_successfully
-        required: false
-      tinybird-deploy:
-        condition: service_completed_successfully
-        required: false
+      # tinybird-sync:
+      #   condition: service_completed_successfully
+      #   required: false
+      # tinybird-deploy:
+      #   condition: service_completed_successfully
+      #   required: false
       activitypub:
         condition: service_started
         required: false
