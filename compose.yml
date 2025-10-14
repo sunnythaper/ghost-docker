@@ -63,23 +63,23 @@ services:
     networks:
       - ghost_network
 
-  traffic-analytics:
-    image: ghost/traffic-analytics:1.0.16@sha256:9bfdad7f32661f7fc2c0eb32bbf096d43e358ec416dffc7ca6df58185cb0cde3
-    restart: always
-    expose:
-      - "3000"
-    volumes:
-      - traffic_analytics_data:/data
-    environment:
-      NODE_ENV: production
-      PROXY_TARGET: ${TINYBIRD_API_URL:-https://api.tinybird.co}/v0/events
-      SALT_STORE_TYPE: ${SALT_STORE_TYPE:-file}
-      SALT_STORE_FILE_PATH: /data/salts.json
-      TINYBIRD_TRACKER_TOKEN: ${TINYBIRD_TRACKER_TOKEN:-}
-      LOG_LEVEL: debug
-    profiles: [analytics]
-    networks:
-      - ghost_network
+  # traffic-analytics:
+  #   image: ghost/traffic-analytics:1.0.16@sha256:9bfdad7f32661f7fc2c0eb32bbf096d43e358ec416dffc7ca6df58185cb0cde3
+  #   restart: always
+  #   expose:
+  #     - "3000"
+  #   volumes:
+  #     - traffic_analytics_data:/data
+  #   environment:
+  #     NODE_ENV: production
+  #     PROXY_TARGET: ${TINYBIRD_API_URL:-https://api.tinybird.co}/v0/events
+  #     SALT_STORE_TYPE: ${SALT_STORE_TYPE:-file}
+  #     SALT_STORE_FILE_PATH: /data/salts.json
+  #     TINYBIRD_TRACKER_TOKEN: ${TINYBIRD_TRACKER_TOKEN:-}
+  #     LOG_LEVEL: debug
+  #   profiles: [analytics]
+  #   networks:
+  #     - ghost_network
 
   activitypub:
     image: ghcr.io/tryghost/activitypub:1.1.0@sha256:39c212fe23603b182d68e67d555c6b9b04b1e57459dfc0bef26d6e4980eb04d1
@@ -106,63 +106,63 @@ services:
     networks:
       - ghost_network
 
-  tinybird-login:
-    build:
-      context: ./tinybird
-      dockerfile: Dockerfile
-    working_dir: /home/tinybird
-    command: /usr/local/bin/tinybird-login
-    volumes:
-      - tinybird_home:/home/tinybird
-      - tinybird_files:/data/tinybird
-    profiles: [analytics]
-    networks:
-      - ghost_network
-    tty: false
-    restart: no
+  # tinybird-login:
+  #   build:
+  #     context: ./tinybird
+  #     dockerfile: Dockerfile
+  #   working_dir: /home/tinybird
+  #   command: /usr/local/bin/tinybird-login
+  #   volumes:
+  #     - tinybird_home:/home/tinybird
+  #     - tinybird_files:/data/tinybird
+  #   profiles: [analytics]
+  #   networks:
+  #     - ghost_network
+  #   tty: false
+  #   restart: no
 
-  tinybird-sync:
-    # Do not alter this without updating the Ghost container as well
-    image: ghost:${GHOST_VERSION:-6-alpine}
-    command: >
-      sh -c "
-        if [ -d /var/lib/ghost/current/core/server/data/tinybird ]; then
-          rm -rf /data/tinybird/*;
-          cp -rf /var/lib/ghost/current/core/server/data/tinybird/* /data/tinybird/;
-          echo 'Tinybird files synced into shared volume.';
-        else
-          echo 'Tinybird source directory not found.';
-        fi
-      "
-    volumes:
-      - tinybird_files:/data/tinybird
-    depends_on:
-      tinybird-login:
-        condition: service_completed_successfully
-    networks:
-      - ghost_network
-    profiles: [analytics]
-    restart: no
+  # tinybird-sync:
+  #   # Do not alter this without updating the Ghost container as well
+  #   image: ghost:${GHOST_VERSION:-6-alpine}
+  #   command: >
+  #     sh -c "
+  #       if [ -d /var/lib/ghost/current/core/server/data/tinybird ]; then
+  #         rm -rf /data/tinybird/*;
+  #         cp -rf /var/lib/ghost/current/core/server/data/tinybird/* /data/tinybird/;
+  #         echo 'Tinybird files synced into shared volume.';
+  #       else
+  #         echo 'Tinybird source directory not found.';
+  #       fi
+  #     "
+  #   volumes:
+  #     - tinybird_files:/data/tinybird
+  #   depends_on:
+  #     tinybird-login:
+  #       condition: service_completed_successfully
+  #   networks:
+  #     - ghost_network
+  #   profiles: [analytics]
+  #   restart: no
 
-  tinybird-deploy:
-    build:
-      context: ./tinybird
-      dockerfile: Dockerfile
-    working_dir: /data/tinybird
-    command: >
-      sh -c "
-        tb-wrapper --cloud deploy --allow-destructive-operations
-      "
-    volumes:
-      - tinybird_home:/home/tinybird
-      - tinybird_files:/data/tinybird
-    depends_on:
-      tinybird-sync:
-        condition: service_completed_successfully
-    profiles: [analytics]
-    networks:
-      - ghost_network
-    tty: true
+  # tinybird-deploy:
+  #   build:
+  #     context: ./tinybird
+  #     dockerfile: Dockerfile
+  #   working_dir: /data/tinybird
+  #   command: >
+  #     sh -c "
+  #       tb-wrapper --cloud deploy --allow-destructive-operations
+  #     "
+  #   volumes:
+  #     - tinybird_home:/home/tinybird
+  #     - tinybird_files:/data/tinybird
+  #   depends_on:
+  #     tinybird-sync:
+  #       condition: service_completed_successfully
+  #   profiles: [analytics]
+  #   networks:
+  #     - ghost_network
+  #   tty: true
 
   activitypub-migrate:
     image: ghcr.io/tryghost/activitypub-migrations:1.1.0@sha256:b3ab20f55d66eb79090130ff91b57fe93f8a4254b446c2c7fa4507535f503662
@@ -179,9 +179,9 @@ services:
 volumes:
   ghost-content:
   mysql-data:
-  tinybird_files:
-  tinybird_home:
-  traffic_analytics_data:
+  # tinybird_files:
+  # tinybird_home:
+  # traffic_analytics_data:
 
 networks:
   ghost_network:
