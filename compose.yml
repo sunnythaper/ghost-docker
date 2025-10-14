@@ -115,7 +115,9 @@ services:
     volumes:
       - tinybird_home:/home/tinybird
       - tinybird_files:/data/tinybird
-    profiles: [analytics]
+    profiles:
+      - analytics
+      - tinybird-login-manual
     networks:
       - ghost_network
     tty: false
@@ -141,7 +143,9 @@ services:
         condition: service_completed_successfully
     networks:
       - ghost_network
-    profiles: [analytics]
+    profiles:
+      - analytics
+      - tinybird-sync-manual
     restart: no
 
   tinybird-deploy:
@@ -159,7 +163,9 @@ services:
     depends_on:
       tinybird-sync:
         condition: service_completed_successfully
-    profiles: [analytics]
+    profiles:
+      - analytics
+      - tinybird-deploy-manual
     networks:
       - ghost_network
     tty: true
