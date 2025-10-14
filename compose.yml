@@ -115,11 +115,7 @@ services:
     volumes:
       - tinybird_home:/home/tinybird
       - tinybird_files:/data/tinybird
-    profiles:
-      - analytics
-      - tinybird-login-manual
-      - tinybird-sync-manual
-      - tinybird-deploy-manual
+    profiles: [analytics]
     networks:
       - ghost_network
     tty: false
@@ -145,10 +141,7 @@ services:
         condition: service_completed_successfully
     networks:
       - ghost_network
-    profiles:
-      - analytics
-      - tinybird-sync-manual
-      - tinybird-deploy-manual
+    profiles: [analytics]
     restart: no
 
   tinybird-deploy:
@@ -166,9 +159,7 @@ services:
     depends_on:
       tinybird-sync:
         condition: service_completed_successfully
-    profiles:
-      - analytics
-      - tinybird-deploy-manual
+    profiles: [analytics]
     networks:
       - ghost_network
     tty: true
@@ -186,8 +177,8 @@ services:
     restart: no
 
 volumes:
-  caddy_data:
-  caddy_config:
+  ghost-content:
+  mysql-data:
   tinybird_files:
   tinybird_home:
   traffic_analytics_data:
