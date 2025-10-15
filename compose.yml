@@ -97,14 +97,28 @@ services:
       MYSQL_DATABASE: activitypub
       LOCAL_STORAGE_PATH: /opt/activitypub/content/images/activitypub
       LOCAL_STORAGE_HOSTING_URL: $SERVICE_URL_GHOST/content/images/activitypub
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      FEDIFY_KV_STORE_TYPE: redis
     depends_on:
       db:
         condition: service_healthy
       activitypub-migrate:
         condition: service_completed_successfully
+      redis:
+        condition: service_healthy
     profiles: [activitypub]
     networks:
       - ghost_network
+
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis-data:/data
 
   # tinybird-login:
   #   build:
@@ -179,6 +193,8 @@ services:
 volumes:
   ghost-content:
   mysql-data:
+  redis-data:
+  redis-config:
   # tinybird_files:
   # tinybird_home:
   # traffic_analytics_data:
