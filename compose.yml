@@ -84,8 +84,8 @@ services:
   activitypub:
     image: ghcr.io/tryghost/activitypub:1.1.0@sha256:39c212fe23603b182d68e67d555c6b9b04b1e57459dfc0bef26d6e4980eb04d1
     restart: always
-    expose:
-      - "7000:8080"
+    # expose:
+    #   - "8080"
     volumes:
       - ghost-content:/opt/activitypub/content
     environment:
