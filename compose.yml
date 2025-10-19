@@ -8,8 +8,8 @@ services:
     # expose:
     #   - "127.0.0.1:${GHOST_PORT:-2368}:2368"
     # This is required to import current config when migrating
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
     environment:
       NODE_ENV: production
       url: $SERVICE_URL_GHOST
@@ -138,8 +138,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-    networks:
-      - ghost_network
 
   # tinybird-login:
   #   build:
@@ -212,8 +210,6 @@ services:
     restart: no
     healthcheck:
       disable: true
-    networks:
-      - ghost_network
 
 volumes:
   ghost-content:
