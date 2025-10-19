@@ -37,8 +37,8 @@ services:
       activitypub:
         condition: service_started
         required: false
-    # healthcheck:
-    #   disable: true
+    healthcheck:
+      disable: true
     # healthcheck:
     #   test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:2368/ghost/api/admin/site/"]
     #   interval: 10s
@@ -120,8 +120,8 @@ services:
       redis:
         condition: service_healthy
     profiles: [activitypub]
-    # healthcheck:
-    #   disable: true
+    healthcheck:
+      disable: true
     networks:
       - ghost_network
 
@@ -208,8 +208,8 @@ services:
         condition: service_healthy
     profiles: [activitypub]
     restart: no
-    # healthcheck:
-    #   disable: true
+    healthcheck:
+      disable: true
 
 volumes:
   ghost-content:
