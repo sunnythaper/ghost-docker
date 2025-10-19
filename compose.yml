@@ -59,15 +59,13 @@ services:
       - mysql-data:/var/lib/mysql
       - ./mysql-init:/docker-entrypoint-initdb.d
     healthcheck:
-      disable: true
-    # healthcheck:
-    #   # test: mysqladmin ping -p$$MYSQL_ROOT_PASSWORD -h 127.0.0.1
-    #   # test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-    #   test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--silent"]
-    #   interval: 1s
-    #   start_period: 30s
-    #   start_interval: 10s
-    #   retries: 120
+      test: mysqladmin ping -p$$MYSQL_ROOT_PASSWORD -h 127.0.0.1
+      # test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      # test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--silent"]
+      interval: 1s
+      start_period: 30s
+      start_interval: 10s
+      retries: 120
     networks:
       - ghost_network
 
