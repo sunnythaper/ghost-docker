@@ -31,13 +31,13 @@ services:
       activitypub:
         condition: service_started
         required: false
-    healthcheck:
-      disable: true
     # healthcheck:
-    #   test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:2368/ghost/api/admin/site/"]
-    #   interval: 10s
-    #   retries: 3
-    #   timeout: 5s
+    #   disable: true
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:2368/ghost/api/admin/site/"]
+      interval: 10s
+      retries: 3
+      timeout: 5s
     # healthcheck:
     #   test: "curl -H 'X-Forwarded-Proto: https' -If http://localhost:2368/ghost/api/admin/site || exit 1"
     #   interval: 30s
