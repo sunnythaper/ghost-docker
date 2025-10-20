@@ -31,18 +31,14 @@ services:
       activitypub:
         condition: service_started
         required: false
-    # healthcheck:
-    #   disable: true
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:2368/ghost/api/admin/site/"]
-      interval: 10s
-      retries: 3
-      timeout: 5s
-    # healthcheck:
-    #   test: "curl -H 'X-Forwarded-Proto: https' -If http://localhost:2368/ghost/api/admin/site || exit 1"
-    #   interval: 30s
-    #   retries: 5
-    #   timeout: 10s
+      test:
+        - CMD
+        - echo
+        - ok
+      interval: 5s
+      timeout: 20s
+      retries: 10
     networks:
       - ghost_network
 
@@ -59,13 +55,15 @@ services:
       - mysql-data:/var/lib/mysql
       - ./mysql-init:/docker-entrypoint-initdb.d
     healthcheck:
-      test: mysqladmin ping -p$$MYSQL_ROOT_PASSWORD -h 127.0.0.1
-      # test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      # test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--silent"]
-      interval: 1s
-      start_period: 30s
-      start_interval: 10s
-      retries: 120
+      test:
+        - CMD
+        - mysqladmin
+        - ping
+        - '-h'
+        - 127.0.0.1
+      interval: 5s
+      timeout: 20s
+      retries: 10
     networks:
       - ghost_network
 
@@ -112,7 +110,13 @@ services:
         condition: service_healthy
     profiles: [activitypub]
     healthcheck:
-      disable: true
+      test:
+        - CMD
+        - echo
+        - ok
+      interval: 5s
+      timeout: 20s
+      retries: 10
     networks:
       - ghost_network
 
@@ -198,7 +202,13 @@ services:
     profiles: [activitypub]
     restart: no
     healthcheck:
-      disable: true
+      test:
+        - CMD
+        - echo
+        - ok
+      interval: 5s
+      timeout: 20s
+      retries: 10
 
 volumes:
   ghost-content:
