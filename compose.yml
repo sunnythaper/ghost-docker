@@ -39,8 +39,6 @@ services:
       interval: 5s
       timeout: 20s
       retries: 10
-    networks:
-      - ghost_network
 
   db:
     image: mysql:8.0.42@sha256:4445b2668d41143cb50e471ee207f8822006249b6859b24f7e12479684def5d9
@@ -64,8 +62,6 @@ services:
       interval: 5s
       timeout: 20s
       retries: 10
-    networks:
-      - ghost_network
 
   # traffic-analytics:
   #   image: ghost/traffic-analytics:1.0.16@sha256:9bfdad7f32661f7fc2c0eb32bbf096d43e358ec416dffc7ca6df58185cb0cde3
@@ -82,8 +78,6 @@ services:
   #     TINYBIRD_TRACKER_TOKEN: ${TINYBIRD_TRACKER_TOKEN:-}
   #     LOG_LEVEL: debug
   #   profiles: [analytics]
-  #   networks:
-  #     - ghost_network
 
   activitypub:
     image: ghcr.io/tryghost/activitypub:1.1.0@sha256:39c212fe23603b182d68e67d555c6b9b04b1e57459dfc0bef26d6e4980eb04d1
@@ -117,8 +111,6 @@ services:
       interval: 5s
       timeout: 20s
       retries: 10
-    networks:
-      - ghost_network
 
   redis:
     image: redis:alpine
@@ -142,8 +134,6 @@ services:
   #     - tinybird_home:/home/tinybird
   #     - tinybird_files:/data/tinybird
   #   profiles: [analytics]
-  #   networks:
-  #     - ghost_network
   #   tty: false
   #   restart: no
 
@@ -165,8 +155,6 @@ services:
   #   depends_on:
   #     tinybird-login:
   #       condition: service_completed_successfully
-  #   networks:
-  #     - ghost_network
   #   profiles: [analytics]
   #   restart: no
 
@@ -186,16 +174,12 @@ services:
   #     tinybird-sync:
   #       condition: service_completed_successfully
   #   profiles: [analytics]
-  #   networks:
-  #     - ghost_network
   #   tty: true
 
   activitypub-migrate:
     image: ghcr.io/tryghost/activitypub-migrations:1.1.0@sha256:b3ab20f55d66eb79090130ff91b57fe93f8a4254b446c2c7fa4507535f503662
     environment:
       MYSQL_DB: mysql://${DATABASE_USER:-ghost}:${DATABASE_PASSWORD:?DATABASE_PASSWORD environment variable is required}@tcp(db:3306)/activitypub
-    networks:
-      - ghost_network
     depends_on:
       db:
         condition: service_healthy
@@ -218,6 +202,3 @@ volumes:
   # tinybird_files:
   # tinybird_home:
   # traffic_analytics_data:
-
-networks:
-  ghost_network:
