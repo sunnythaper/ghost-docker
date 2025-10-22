@@ -33,10 +33,9 @@ services:
         required: false
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "-", "--header=User-Agent:healthcheck", "http://127.0.0.1:2368/ghost/api/admin/site/", "-S"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
+      interval: 5s
+      timeout: 20s
+      retries: 10
 
   db:
     image: mysql:8.0.42@sha256:4445b2668d41143cb50e471ee207f8822006249b6859b24f7e12479684def5d9
