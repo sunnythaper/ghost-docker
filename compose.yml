@@ -32,15 +32,7 @@ services:
         condition: service_started
         required: false
     healthcheck:
-      test:
-        - CMD
-        - wget
-        - '-q'
-        - '-O'
-        - '-'
-        - '--header=User-Agent:healthcheck'
-        - 'http://127.0.0.1:${GHOST_PORT:-2368}/ghost/api/admin/site/'
-        - '-S'
+      test: ["CMD", "wget", "-q", "-O", "-", "--header=User-Agent:healthcheck", "http://127.0.0.1:2368/ghost/api/admin/site/", "-S"]
       interval: 10s
       timeout: 5s
       retries: 5
