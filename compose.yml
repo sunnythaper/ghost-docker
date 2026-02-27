@@ -67,7 +67,7 @@ services:
       MYSQL_USER: $SERVICE_USER_MYSQL
       MYSQL_PASSWORD: $SERVICE_PASSWORD_MYSQL
       MYSQL_DATABASE: ghost
-      MYSQL_MULTIPLE_DATABASES: activitypub
+      MYSQL_MULTIPLE_DATABASES: ${MYSQL_MULTIPLE_DATABASES:-activitypub}
     healthcheck:
       test:
         - CMD
