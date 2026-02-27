@@ -6,14 +6,14 @@ configs:
       set -e
       set -u
 
-      if [ -n "$MYSQL_MULTIPLE_DATABASES" ]; then
-        echo "Creating multiple databases: $MYSQL_MULTIPLE_DATABASES"
+      if [ -n "$$MYSQL_MULTIPLE_DATABASES" ]; then
+        echo "Creating multiple databases: $$MYSQL_MULTIPLE_DATABASES"
 
-        for db in $(echo "$MYSQL_MULTIPLE_DATABASES" | tr ',' ' '); do
-          echo "Creating database: $db"
-          mysql -u root -p"$MYSQL_ROOT_PASSWORD" <<-EOSQL
-            CREATE DATABASE IF NOT EXISTS \`$db\`;
-            GRANT ALL ON \`$db\`.* TO '$MYSQL_USER'@'%';
+        for db in $$(echo "$$MYSQL_MULTIPLE_DATABASES" | tr ',' ' '); do
+          echo "Creating database: $$db"
+          mysql -u root -p"$$MYSQL_ROOT_PASSWORD" <<-EOSQL
+            CREATE DATABASE IF NOT EXISTS \`$$db\`;
+            GRANT ALL ON \`$$db\`.* TO '$$MYSQL_USER'@'%';
       EOSQL
         done
 
@@ -67,7 +67,7 @@ services:
       MYSQL_USER: $SERVICE_USER_MYSQL
       MYSQL_PASSWORD: $SERVICE_PASSWORD_MYSQL
       MYSQL_DATABASE: ghost
-      MYSQL_MULTIPLE_DATABASES: ${MYSQL_MULTIPLE_DATABASES:-activitypub}
+      MYSQL_MULTIPLE_DATABASES: activitypub
     healthcheck:
       test:
         - CMD
