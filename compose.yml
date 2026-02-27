@@ -86,6 +86,7 @@ services:
       - ghost-content:/opt/activitypub/content
     environment:
       NODE_ENV: production
+      PORT: ${ACTIVITYPUB_PORT:-8080}
       MYSQL_HOST: db
       MYSQL_USER: $SERVICE_USER_MYSQL
       MYSQL_PASSWORD: $SERVICE_PASSWORD_MYSQL
