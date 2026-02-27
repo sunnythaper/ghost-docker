@@ -38,7 +38,7 @@ services:
       database__connection__host: db
       database__connection__user: $SERVICE_USER_MYSQL
       database__connection__password: $SERVICE_PASSWORD_MYSQL
-      database__connection__database: ${GHOST_DATABASE:-ghost}
+      database__connection__database: ghost
     depends_on:
       db:
         condition: service_healthy
@@ -66,8 +66,8 @@ services:
       MYSQL_ROOT_PASSWORD: $SERVICE_PASSWORD_MYSQLROOT
       MYSQL_USER: $SERVICE_USER_MYSQL
       MYSQL_PASSWORD: $SERVICE_PASSWORD_MYSQL
-      MYSQL_DATABASE: ${GHOST_DATABASE:-ghost}
-      MYSQL_MULTIPLE_DATABASES: ${MYSQL_MULTIPLE_DATABASES:-activitypub}
+      MYSQL_DATABASE: ghost
+      MYSQL_MULTIPLE_DATABASES: activitypub
     healthcheck:
       test:
         - CMD
@@ -89,7 +89,7 @@ services:
       MYSQL_HOST: db
       MYSQL_USER: $SERVICE_USER_MYSQL
       MYSQL_PASSWORD: $SERVICE_PASSWORD_MYSQL
-      MYSQL_DATABASE: ${ACTIVITYPUB_DATABASE:-activitypub}
+      MYSQL_DATABASE: activitypub
       LOCAL_STORAGE_PATH: /opt/activitypub/content/images/activitypub
       LOCAL_STORAGE_HOSTING_URL: $SERVICE_URL_GHOST/content/images/activitypub
       REDIS_HOST: redis
@@ -130,7 +130,7 @@ services:
     image: ghcr.io/tryghost/activitypub-migrations:1.1.0@sha256:b3ab20f55d66eb79090130ff91b57fe93f8a4254b446c2c7fa4507535f503662
     restart: no
     environment:
-      MYSQL_DB: mysql://$SERVICE_USER_MYSQL:$SERVICE_PASSWORD_MYSQL@tcp(db:3306)/${ACTIVITYPUB_DATABASE:-activitypub}
+      MYSQL_DB: mysql://$SERVICE_USER_MYSQL:$SERVICE_PASSWORD_MYSQL@tcp(db:3306)/activitypub
     depends_on:
       db:
         condition: service_healthy
