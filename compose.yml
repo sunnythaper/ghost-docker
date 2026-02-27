@@ -1,33 +1,47 @@
----
+configs:
+  create-multiple-databases:
+    content: |
+      #!/bin/bash
+
+      set -e
+      set -u
+
+      if [ -n "$MYSQL_MULTIPLE_DATABASES" ]; then
+        echo "Creating multiple databases: $MYSQL_MULTIPLE_DATABASES"
+
+        for db in $(echo "$MYSQL_MULTIPLE_DATABASES" | tr ',' ' '); do
+          echo "Creating database: $db"
+          mysql -u root -p"$MYSQL_ROOT_PASSWORD" <<-EOSQL
+            CREATE DATABASE IF NOT EXISTS \`$db\`;
+            GRANT ALL ON \`$db\`.* TO '$MYSQL_USER'@'%';
+      EOSQL
+        done
+
+        echo "Multiple databases created"
+      fi
+
+volumes:
+  ghost-content:
+  mysql-data:
+  redis-data:
+
 services:
   ghost:
-    # Do not alter this without updating the Tinybird Sync container as well
     image: ghost:${GHOST_VERSION:-6-alpine}
     restart: always
+    volumes:
+      - ghost-content:/var/lib/ghost/content
     environment:
-      NODE_ENV: production
+      NODE_ENV: ${NODE_ENV:-production}
       url: $SERVICE_URL_GHOST
       database__client: mysql
       database__connection__host: db
       database__connection__user: ${DATABASE_USER:-ghost}
       database__connection__password: ${DATABASE_PASSWORD:?DATABASE_PASSWORD environment variable is required}
-      database__connection__database: ghost
-      # tinybird__tracker__endpoint: $SERVICE_URL_GHOST/.ghost/analytics/api/v1/page_hit
-      # tinybird__adminToken: ${TINYBIRD_ADMIN_TOKEN:-}
-      # tinybird__workspaceId: ${TINYBIRD_WORKSPACE_ID:-}
-      # tinybird__tracker__datasource: analytics_events
-      # tinybird__stats__endpoint: ${TINYBIRD_API_URL:-https://api.tinybird.co}
-    volumes:
-      - ghost-content:/var/lib/ghost/content
+      database__connection__database: ${GHOST_DATABASE:-ghost}
     depends_on:
       db:
         condition: service_healthy
-      # tinybird-sync:
-      #   condition: service_completed_successfully
-      #   required: false
-      # tinybird-deploy:
-      #   condition: service_completed_successfully
-      #   required: false
       activitypub:
         condition: service_started
         required: false
@@ -43,15 +57,17 @@ services:
   db:
     image: mysql:8.0.42@sha256:4445b2668d41143cb50e471ee207f8822006249b6859b24f7e12479684def5d9
     restart: always
+    volumes:
+      - mysql-data:/var/lib/mysql
+    configs:
+      - source: create-multiple-databases
+        target: /docker-entrypoint-initdb.d/create-multiple-databases.sh
     environment:
       MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD:?DATABASE_ROOT_PASSWORD environment variable is required}
       MYSQL_USER: ${DATABASE_USER:-ghost}
       MYSQL_PASSWORD: ${DATABASE_PASSWORD:?DATABASE_PASSWORD environment variable is required}
-      MYSQL_DATABASE: ghost
-      MYSQL_MULTIPLE_DATABASES: activitypub
-    volumes:
-      - mysql-data:/var/lib/mysql
-      - ./mysql-init:/docker-entrypoint-initdb.d
+      MYSQL_DATABASE: ${GHOST_DATABASE:-ghost}
+      MYSQL_MULTIPLE_DATABASES: ${ACTIVITYPUB_DATABASE:-activitypub}
     healthcheck:
       test:
         - CMD
@@ -63,33 +79,17 @@ services:
       timeout: 20s
       retries: 10
 
-  # traffic-analytics:
-  #   image: ghost/traffic-analytics:1.0.16@sha256:9bfdad7f32661f7fc2c0eb32bbf096d43e358ec416dffc7ca6df58185cb0cde3
-  #   restart: always
-  #   expose:
-  #     - "3000"
-  #   volumes:
-  #     - traffic_analytics_data:/data
-  #   environment:
-  #     NODE_ENV: production
-  #     PROXY_TARGET: ${TINYBIRD_API_URL:-https://api.tinybird.co}/v0/events
-  #     SALT_STORE_TYPE: ${SALT_STORE_TYPE:-file}
-  #     SALT_STORE_FILE_PATH: /data/salts.json
-  #     TINYBIRD_TRACKER_TOKEN: ${TINYBIRD_TRACKER_TOKEN:-}
-  #     LOG_LEVEL: debug
-  #   profiles: [analytics]
-
   activitypub:
     image: ghcr.io/tryghost/activitypub:1.1.0@sha256:39c212fe23603b182d68e67d555c6b9b04b1e57459dfc0bef26d6e4980eb04d1
     restart: always
     volumes:
       - ghost-content:/opt/activitypub/content
     environment:
-      NODE_ENV: production
+      NODE_ENV: ${NODE_ENV:-production}
       MYSQL_HOST: db
       MYSQL_USER: ${DATABASE_USER:-ghost}
       MYSQL_PASSWORD: ${DATABASE_PASSWORD:?DATABASE_PASSWORD environment variable is required}
-      MYSQL_DATABASE: activitypub
+      MYSQL_DATABASE: ${ACTIVITYPUB_DATABASE:-activitypub}
       LOCAL_STORAGE_PATH: /opt/activitypub/content/images/activitypub
       LOCAL_STORAGE_HOSTING_URL: $SERVICE_URL_GHOST/content/images/activitypub
       REDIS_HOST: redis
@@ -102,7 +102,6 @@ services:
         condition: service_completed_successfully
       redis:
         condition: service_healthy
-    profiles: [activitypub]
     healthcheck:
       test:
         - CMD
@@ -119,72 +118,22 @@ services:
     volumes:
       - redis-data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test:
+        - CMD
+        - 'redis-cli'
+        - ping
       interval: 10s
       timeout: 5s
       retries: 3
 
-  # tinybird-login:
-  #   build:
-  #     context: ./tinybird
-  #     dockerfile: Dockerfile
-  #   working_dir: /home/tinybird
-  #   command: /usr/local/bin/tinybird-login
-  #   volumes:
-  #     - tinybird_home:/home/tinybird
-  #     - tinybird_files:/data/tinybird
-  #   profiles: [analytics]
-  #   tty: false
-  #   restart: no
-
-  # tinybird-sync:
-  #   # Do not alter this without updating the Ghost container as well
-  #   image: ghost:${GHOST_VERSION:-6-alpine}
-  #   command: >
-  #     sh -c "
-  #       if [ -d /var/lib/ghost/current/core/server/data/tinybird ]; then
-  #         rm -rf /data/tinybird/*;
-  #         cp -rf /var/lib/ghost/current/core/server/data/tinybird/* /data/tinybird/;
-  #         echo 'Tinybird files synced into shared volume.';
-  #       else
-  #         echo 'Tinybird source directory not found.';
-  #       fi
-  #     "
-  #   volumes:
-  #     - tinybird_files:/data/tinybird
-  #   depends_on:
-  #     tinybird-login:
-  #       condition: service_completed_successfully
-  #   profiles: [analytics]
-  #   restart: no
-
-  # tinybird-deploy:
-  #   build:
-  #     context: ./tinybird
-  #     dockerfile: Dockerfile
-  #   working_dir: /data/tinybird
-  #   command: >
-  #     sh -c "
-  #       tb-wrapper --cloud deploy --allow-destructive-operations
-  #     "
-  #   volumes:
-  #     - tinybird_home:/home/tinybird
-  #     - tinybird_files:/data/tinybird
-  #   depends_on:
-  #     tinybird-sync:
-  #       condition: service_completed_successfully
-  #   profiles: [analytics]
-  #   tty: true
-
   activitypub-migrate:
     image: ghcr.io/tryghost/activitypub-migrations:1.1.0@sha256:b3ab20f55d66eb79090130ff91b57fe93f8a4254b446c2c7fa4507535f503662
+    restart: no
     environment:
       MYSQL_DB: mysql://${DATABASE_USER:-ghost}:${DATABASE_PASSWORD:?DATABASE_PASSWORD environment variable is required}@tcp(db:3306)/activitypub
     depends_on:
       db:
         condition: service_healthy
-    profiles: [activitypub]
-    restart: no
     healthcheck:
       test:
         - CMD
@@ -193,12 +142,3 @@ services:
       interval: 5s
       timeout: 20s
       retries: 10
-
-volumes:
-  ghost-content:
-  mysql-data:
-  redis-data:
-  redis-config:
-  # tinybird_files:
-  # tinybird_home:
-  # traffic_analytics_data:
