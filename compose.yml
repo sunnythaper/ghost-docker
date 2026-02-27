@@ -36,8 +36,8 @@ services:
       url: $SERVICE_URL_GHOST
       database__client: mysql
       database__connection__host: db
-      database__connection__user: ${DATABASE_USER:-ghost}
-      database__connection__password: ${DATABASE_PASSWORD:?DATABASE_PASSWORD environment variable is required}
+      database__connection__user: $SERVICE_USER_MYSQL
+      database__connection__password: $SERVICE_PASSWORD_MYSQL
       database__connection__database: ${GHOST_DATABASE:-ghost}
     depends_on:
       db:
@@ -63,9 +63,9 @@ services:
       - source: create-multiple-databases
         target: /docker-entrypoint-initdb.d/create-multiple-databases.sh
     environment:
-      MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD:?DATABASE_ROOT_PASSWORD environment variable is required}
-      MYSQL_USER: ${DATABASE_USER:-ghost}
-      MYSQL_PASSWORD: ${DATABASE_PASSWORD:?DATABASE_PASSWORD environment variable is required}
+      MYSQL_ROOT_PASSWORD: $SERVICE_PASSWORD_MYSQL_ROOT
+      MYSQL_USER: $SERVICE_USER_MYSQL
+      MYSQL_PASSWORD: $SERVICE_PASSWORD_MYSQL
       MYSQL_DATABASE: ${GHOST_DATABASE:-ghost}
       MYSQL_MULTIPLE_DATABASES: ${ACTIVITYPUB_DATABASE:-activitypub}
     healthcheck:
@@ -87,8 +87,8 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       MYSQL_HOST: db
-      MYSQL_USER: ${DATABASE_USER:-ghost}
-      MYSQL_PASSWORD: ${DATABASE_PASSWORD:?DATABASE_PASSWORD environment variable is required}
+      MYSQL_USER: $SERVICE_USER_MYSQL
+      MYSQL_PASSWORD: $SERVICE_PASSWORD_MYSQL
       MYSQL_DATABASE: ${ACTIVITYPUB_DATABASE:-activitypub}
       LOCAL_STORAGE_PATH: /opt/activitypub/content/images/activitypub
       LOCAL_STORAGE_HOSTING_URL: $SERVICE_URL_GHOST/content/images/activitypub
@@ -130,7 +130,7 @@ services:
     image: ghcr.io/tryghost/activitypub-migrations:1.1.0@sha256:b3ab20f55d66eb79090130ff91b57fe93f8a4254b446c2c7fa4507535f503662
     restart: no
     environment:
-      MYSQL_DB: mysql://${DATABASE_USER:-ghost}:${DATABASE_PASSWORD:?DATABASE_PASSWORD environment variable is required}@tcp(db:3306)/activitypub
+      MYSQL_DB: mysql://$SERVICE_USER_MYSQL:$SERVICE_PASSWORD_MYSQL@tcp(db:3306)/${ACTIVITYPUB_DATABASE:-activitypub}
     depends_on:
       db:
         condition: service_healthy
