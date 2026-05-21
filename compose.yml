@@ -27,7 +27,7 @@ volumes:
 
 services:
   ghost:
-    image: ghost:6-alpine
+    image: ghost:6
     restart: always
     volumes:
       - ghost-content:/var/lib/ghost/content
